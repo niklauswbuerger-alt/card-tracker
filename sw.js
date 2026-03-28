@@ -1,27 +1,21 @@
-const CACHE = 'owl-tracker-v1';
-const CORE = ['/owl-tracker/', '/owl-tracker/index.html', '/owl-tracker/manifest.json'];
-
+const CACHE = 'card-tracker-v1';
+const CORE = ['/card-tracker/', '/card-tracker/index.html', '/card-tracker/manifest.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)));
   self.skipWaiting();
 });
-
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
   ));
   self.clients.claim();
 });
-
 self.addEventListener('fetch', e => {
-  if(e.request.method !== 'GET') return;
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const net = fetch(e.request).then(res => {
-        if(res.ok){
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
+        if (res.ok) { const c = res.clone(); caches.open(CACHE).then(ch => ch.put(e.request, c)); }
         return res;
       }).catch(() => cached);
       return cached || net;
